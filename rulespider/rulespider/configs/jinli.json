@@ -1,0 +1,10 @@
+{
+  "spider": "jinli",
+  "home": "https://game.gionee.com/Front/Category/index/?cku=158655874_null&action=visit&object=category&intersrc=/",
+  "start_urls": [
+    "https://game.gionee.com/Front/Category/index/?cku=158655874_null&action=visit&object=category&intersrc=/"
+  ],
+  "rules": [
+    {}
+  ]
+}

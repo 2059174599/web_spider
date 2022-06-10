@@ -51,7 +51,7 @@ DOWNLOAD_DELAY = 3
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-   'rulespider.middlewares.RulespiderDownloaderMiddleware': 543,
+   'rulespider.middlewares.RulespiderDownloaderMiddleware': 100,
     # 'rulespider.middlewares.RandomUserAgentMiddleware': 100,
 }
 
@@ -63,9 +63,9 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-   'rulespider.pipelines.RulespiderPipeline': 300,
-}
+# ITEM_PIPELINES = {
+#    'rulespider.pipelines.RulespiderPipeline': 300,
+# }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
