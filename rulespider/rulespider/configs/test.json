@@ -1,0 +1,18 @@
+{
+  "spider": "jinli",
+  "home": "https://game.gionee.com/Front/Category/index/?cku=158655874_null&action=visit&object=category&intersrc=/",
+  "start_urls": [
+    "https://game.gionee.com/Front/Category/index/?cku=158655874_null&action=visit&object=category&intersrc=/"
+  ],
+  "rules": [
+    {"link_extractor": {"restrict_xpaths": "//a[@class='thumb']"},
+      "follow": true,
+      "callback": "parse_item"
+    }
+  ],
+  "item": {
+    "class": "RulespiderItem",
+    "loader": "RuleItem"
+
+  }
+}

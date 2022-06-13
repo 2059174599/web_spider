@@ -5,6 +5,8 @@
 
 import scrapy
 from scrapy import Field
+from scrapy.loader import ItemLoader
+from itemloaders.processors import TakeFirst, Identity, Compose
 
 class RulespiderItem(scrapy.Item):
     # define the fields for your item here like:
@@ -27,3 +29,10 @@ class RulespiderItem(scrapy.Item):
     province = Field()
     city = Field()
     source = Field()
+
+class RuleItem(ItemLoader):
+    default_output_processor = TakeFirst()
+    # 取列表
+    sceenshot_url_out = Identity()
+    # 去空格
+    name_out = Compose(TakeFirst(), str.strip)
