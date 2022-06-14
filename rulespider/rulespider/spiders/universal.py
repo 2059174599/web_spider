@@ -2,17 +2,16 @@ import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from ..utils import get_config
-from rulespider.items import RuleItem, RulespiderItem
+from .. import items
 
 class UniversalSpider(CrawlSpider):
 
     name = 'universal'
     def __init__(self, *args, **kwargs):
-
-        config = get_config('jinli')
+        config = get_config('test')
         self.config = config
         self.start_urls = config.get('start_urls')
-        self.allowed_domains = config.get('allowed_domains')
+        # self.allowed_domains = config.get('allowed_domains')
         rules = []
         for rule_kwargs in config.get('rules'):
             link_extractor = LinkExtractor(**rule_kwargs.get('link_extractor'))
@@ -22,11 +21,11 @@ class UniversalSpider(CrawlSpider):
         self.rules = rules
         super(UniversalSpider, self).__init__(*args, **kwargs)
 
-    def parse_detail(self, response):
+    def parse_item(self, response):
         item = self.config.get('item')
         if item:
-            cls = getattr(RulespiderItem, item.get('class'))()
-            loader = getattr(RuleItem, item.get('loader'))(cls, response=response)
+            cls = getattr(items, item.get('class'))()
+            loader = getattr(items, item.get('loader'))(cls, response=response)
             for key, value in item.get('attrs').items():
                 for extractor in value:
                     if extractor.get('method') == 'xpath':

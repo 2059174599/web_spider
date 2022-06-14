@@ -5,6 +5,8 @@
 
 
 # useful for handling different item types with a single interface
+import json
+
 from itemadapter import ItemAdapter
 import re
 
@@ -47,9 +49,16 @@ class RulespiderPipeline:
         name = dr.sub('', name)
         return name.strip()
 
+    def get_result(self, item):
+        with open('result.out', 'a', encoding='utf-8') as f:
+            f.write(json.dumps(item, ensure_ascii=False) + '\n')
+
+
     def process_item(self, item, spider):
-        item['introduce'] = self.fit_date(item['introduce'])
-        item['apksize'] = self.unit_conversion(item['apksize'])
-        print('pipline********', item)
+        print('pipline********1', item)
+        self.get_result(dict(item))
+        # item['introduce'] = self.fit_date(item['introduce'])
+        # item['apksize'] = self.unit_conversion(item['apksize'])
+        # print('pipline********2', item)
 
         return item

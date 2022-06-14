@@ -5,14 +5,21 @@
     "https://game.gionee.com/Front/Category/index/?cku=158655874_null&action=visit&object=category&intersrc=/"
   ],
   "rules": [
-    {"link_extractor": {"restrict_xpaths": "//a[@class='thumb']"},
-      "follow": true,
+    {"link_extractor": {"restrict_xpaths": "//ul/li/a[@class=\"thumb\"]"},
+      "follow": false,
       "callback": "parse_item"
     }
   ],
   "item": {
     "class": "RulespiderItem",
-    "loader": "RuleItem"
-
+    "loader": "RuleItem",
+     "attrs": {
+       "name": [
+         {
+           "method": "xpath",
+           "arg": "//div[@class=\"game_intro\"]/h4/text()"
+         }
+       ]
+     }
   }
 }
