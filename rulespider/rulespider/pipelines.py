@@ -6,11 +6,23 @@
 
 # useful for handling different item types with a single interface
 import json
-
+from scrapy.utils.python import to_bytes
 from itemadapter import ItemAdapter
 import re
+import pymongo
+import hashlib
 
 class RulespiderPipeline:
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        """
+        读取配置
+        """
+        cls.mongo_connect = crawler.settings.get('MONGO_URL')
+        cls.mongo_database = crawler.settings.get('MONGO_DATABASES')
+        cls.mongo_collection = crawler.settings.get('MONGO_COLLECTION')
+        return cls()
 
     def unit_conversion(self, name):
         try:
@@ -53,12 +65,40 @@ class RulespiderPipeline:
         with open('result.out', 'a', encoding='utf-8') as f:
             f.write(json.dumps(item, ensure_ascii=False) + '\n')
 
+    def open_spider(self, spider):
+        """
+        数据库链接
+        """
+        self.mongo_client = pymongo.MongoClient(self.mongo_connect)
+        self.mongo_db = self.mongo_client[self.mongo_database]
+
+    def get_id(self, item, names):
+        _id = hashlib.md5(to_bytes(item['version']))
+        for name in names:
+            _id.update(to_bytes(str(item[name])))
+        _id = _id.hexdigest()
+        return _id
 
     def process_item(self, item, spider):
-        print('pipline********1', item)
-        self.get_result(dict(item))
-        # item['introduce'] = self.fit_date(item['introduce'])
-        # item['apksize'] = self.unit_conversion(item['apksize'])
-        # print('pipline********2', item)
+        """
+        数据处理
+        """
+        item['introduce'] = self.fit_date(item['introduce'])
+        item['apksize'] = self.unit_conversion(item['apksize'])
+        names = ['apksize', 'developer', 'downloadUrl']
+        if spider.name == 'jinli':
+            names = ['apksize', 'developer']
+        _id = self.get_id(item, names)
+        self.mongo_db[self.mongo_collection].update_one(
+                                {'_id': _id},
+                                {'$set': dict(item)},
+                                True
+                                )
 
         return item
+
+    def clase_spider(self, spider):
+        """
+        数据库关闭
+        """
+        self.mongo_client.close()

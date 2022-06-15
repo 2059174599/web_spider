@@ -1,5 +1,6 @@
 # from scrapy import cmdline
-# cmdline.execute('scrapy crawl xiaomi'.split())
+# cmdline.execute('scrapy crawl universal'.split())
+
 import argparse
 
 from scrapy.utils.project import get_project_settings
@@ -18,7 +19,7 @@ def run():
     settings = dict(project_settings.copy())
     settings.update(config.get('settings'))
     process = CrawlerProcess(settings)
-    process.crawl(spider, **{'name':name})
+    process.crawl(spider, **{'name': name})
     process.start()
 
 if __name__ == '__name__':

@@ -1,100 +1,77 @@
 {
-  "spider": "universal",
-  "home": "https://game.gionee.com/Front/Category/index/?cku=158655874_null&action=visit&object=category&intersrc=/",
-  "start_urls": [
-    "https://game.gionee.com/Front/Category/index/?cku=158655874_null&action=visit&object=category&intersrc=/"
-  ],
-  "rules": [
-    {"link_extractor": {"restrict_xpaths": "//ul/li/a[@class=\"thumb\"]"},
-      "follow": false,
-      "callback": "parse_item"
-    }
-  ],
-  "item": {
-    "class": "RulespiderItem",
-    "loader": "RuleItem",
-    "attrs": {
-      "name": [
-        {
-          "method": "xpath",
-          "arg": "//div[@class=\"game_intro\"]/h4/text()"
-        }
-      ],
-      "apksize": [
-        {
-          "method": "xpath",
-          "arg": ".",
-          "re": "大小：(>*?)<"
-        }
-      ],
-      "downloadUrl": [
-        {
-          "method": "xpath",
-          "arg": "//p[@class=\"btn_area\"]/a[2]/@href"
-        }
-      ],
-      "version": [
-        {
-          "method": "xpath",
-          "arg": "//p[@class=\"sum\"]/span[3]/text()"
-        }
-      ],
-      "introduce": [
-        {
-          "method": "xpath",
-          "arg": "//div[@id=\"j_content\"]"
-        }
-      ],
-      "developer": [
-        {
-          "method": "xpath",
-          "arg": "//li[@class=\"name\"]/text()"
-        }
-      ],
-      "updatetime": [
-        {
-          "method": "xpath",
-          "arg": ".",
-          "re": "更新日期：(\\d{4}-\\d{2}-\\d{2})<"
-        }
-      ],
-      "icon_url": [
-        {
-          "method": "xpath",
-          "arg": "//div[@class=\"game_intro\"]/a/img/@src"
-        }
-      ],
-      "sceenshot_url": [
-        {
-          "method": "xpath",
-          "arg": ".",
-          "re": "data-original=\"(.*?)\""
-        }
-      ],
-      "category": [
-        {
-          "method": "value",
-          "args": "游戏"
-        }
-      ],
-      "shop": [
-        {
-          "method": "value",
-          "args": "金立游戏商城"
-        }
-      ],
-      "system": [
-        {
-          "method": "value",
-          "args": "android"
-        }
-      ],
-      "dlamount": [
-        {
-          "method": "value",
-          "args": 0
-        }
-      ]
-    }
-  }
+	"spider": "universal",
+	"home": "https://game.gionee.com/Front/Category/index/?cku=158655874_null&action=visit&object=category&intersrc=/",
+	"start_urls": [
+		"https://game.gionee.com/Front/Category/index/?cku=158655874_null&action=visit&object=category&intersrc=/"
+	],
+    "settings": {},
+	"rules": [{
+		"link_extractor": {
+			"restrict_xpaths": "//ul/li/a[@class=\"thumb\"]"
+		},
+		"follow": false,
+		"callback": "parse_item"
+	}],
+	"item": {
+		"class": "RulespiderItem",
+		"loader": "RuleItem",
+		"attrs": {
+			"name": [{
+				"method": "xpath",
+				"arg": "//div[@class=\"game_intro\"]/h4/text()"
+			}],
+			"apksize": [{
+				"method": "xpath",
+				"arg": ".",
+				"re": "大小：(.*?)<"
+			}],
+			"downloadUrl": [{
+				"method": "xpath",
+				"arg": "//p[@class=\"btn_area\"]/a[2]/@href"
+			}],
+			"version": [{
+				"method": "xpath",
+				"arg": ".",
+                "re": "版本：(.*?)<"
+			}],
+			"introduce": [{
+				"method": "xpath",
+				"arg": "//div[@id=\"j_content\"]"
+			}],
+			"developer": [{
+				"method": "xpath",
+				"arg": "//li[@class=\"name\"]/text()"
+			}],
+			"updatetime": [{
+				"method": "xpath",
+				"arg": ".",
+				"re": "更新日期：(\\d{4}-\\d{2}-\\d{2})<"
+			}],
+			"icon_url": [{
+				"method": "xpath",
+				"arg": "//div[@class=\"game_intro\"]/a/img/@src"
+			}],
+			"sceenshot_url": [{
+				"method": "xpath",
+				"arg": ".",
+				"re": "data-original=\"(.*?)\""
+			}],
+			"category": [{
+				"method": "value",
+				"args": "游戏"
+			}],
+			"shop": [{
+				"method": "value",
+				"args": "金立游戏商城"
+			}],
+			"system": [{
+				"method": "value",
+				"args": "android"
+			}],
+			"dlamount": [{
+				"method": "value",
+				"args": 0
+			}]
+		}
+	}
 }

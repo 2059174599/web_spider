@@ -3,15 +3,9 @@ import scrapy
 import re
 import time
 import logging
-# from eversec.settings import Log_file_path
 
 logger = logging.getLogger('jinli')
-# logger.setLevel(level=logging.INFO)
-# handler = logging.handlers.RotatingFileHandler(Log_file_path,  mode="a", encoding='utf-8')
-# handler.setLevel(logging.INFO)
-# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-# handler.setFormatter(formatter)
-# logger.addHandler(handler)
+
 
 class JinliGameSpider(scrapy.Spider):
     """

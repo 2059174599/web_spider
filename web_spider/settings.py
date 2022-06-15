@@ -90,9 +90,6 @@ ITEM_PIPELINES = {
 
 
 DATABASE = {
-     # 'kafka': {'product': ['192.168.205.163:9095'],
-     #           'consumer': ['192.168.205.163:2181'],
-     #        },
     'kafka': {'product': ['192.168.126.24:9092'],
               'consumer': ['192.168.126.24:2181'],
               },
@@ -116,6 +113,7 @@ DATABASE = {
         'weixin':'wechat.txt'
     },
     }
+
 topic = 'app_info_topic'
 
 csvFiles = '/home/crawler/csv/20220107_t_app_reptile.csv'
@@ -124,12 +122,12 @@ APK_DOEN = '/home/exe'
 
 # log config
 import datetime
-Today = datetime.datetime.now()#取得现在的时间
+Today = datetime.datetime.now() #取得现在的时间
 
 import platform
 
 if platform.system().lower() == 'windows':
-    LOG_FILE = r'E:\gitlab\crawler-web\eversec\eversec\log\scrapy_{}_{}_{}.log'.format(Today.year, Today.month, Today.day)
+    LOG_FILE = '..\log\scrapy_{}_{}_{}.log'.format(Today.year, Today.month, Today.day)
 else:
     LOG_FILE = '../log/scrapy_{}_{}_{}.log'.format(Today.year, Today.month, Today.day) #以时间为文件名
 

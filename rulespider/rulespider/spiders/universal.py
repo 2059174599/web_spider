@@ -3,15 +3,17 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from ..utils import get_config
 from .. import items
+import time
 
 class UniversalSpider(CrawlSpider):
 
     name = 'universal'
-    def __init__(self, *args, **kwargs):
-        config = get_config('test')
+    def __init__(self, name, *args, **kwargs):
+        config = get_config(name)
         self.config = config
+        self.name = name
         self.start_urls = config.get('start_urls')
-        # self.allowed_domains = config.get('allowed_domains')
+        self.allowed_domains = config.get('allowed_domains')
         rules = []
         for rule_kwargs in config.get('rules'):
             link_extractor = LinkExtractor(**rule_kwargs.get('link_extractor'))
@@ -20,6 +22,7 @@ class UniversalSpider(CrawlSpider):
             rules.append(rule)
         self.rules = rules
         super(UniversalSpider, self).__init__(*args, **kwargs)
+
 
     def parse_item(self, response):
         item = self.config.get('item')
@@ -34,4 +37,6 @@ class UniversalSpider(CrawlSpider):
                         loader.add_css(key, extractor.get('arg'), **{'re': extractor.get('re')})
                     if extractor.get('method') == 'value':
                         loader.add_value(key, extractor.get('args'), **{'re': extractor.get('re')})
+            loader.add_value('url', response.url)
+            loader.add_value('jsonObject', {'time': time.strftime("%Y-%m-%d", time.localtime())})
             yield loader.load_item()

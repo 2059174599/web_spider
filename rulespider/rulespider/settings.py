@@ -95,6 +95,14 @@ Today = datetime.datetime.now() #取得现在的时间
 
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
-SCHEDULER_PERSIST = True
+# 布隆过滤器
+# DUPEFILTER_CLASS = "scrapy_redis_bloomfilter.dupefilter.RFPDupeFilter"
+# BLOOMFILTER_HASH_NUMBER = 6
+# 128MB 1亿数量级
+# BLOOMFILTER_BIT = 30
+SCHEDULER_PERSIST = False
 
 REDIS_URL = 'redis://:eversec123098@127.0.0.1:6379'
+MONGO_URL = 'mongodb://root:eversec123098@127.0.0.1:27001'
+MONGO_DATABASES = 'test'
+MONGO_COLLECTION = 'app_info_wuhan'
