@@ -1,4 +1,3 @@
-# 启动方式
-
-## rulespider
-### python run.py name(name：configs下文件名)  
+# rulespider 规则爬虫
+# web_spider 爬虫
+# flaskApi 后端接口
