@@ -7,11 +7,10 @@
 # useful for handling different item types with a single interface
 import json
 from scrapy.utils.python import to_bytes
-from itemadapter import ItemAdapter
+import requests
 import re
-import pymongo
 import hashlib
-
+from toKafka import KafkaTest
 class RulespiderPipeline:
 
     @classmethod
@@ -19,9 +18,9 @@ class RulespiderPipeline:
         """
         读取配置
         """
-        cls.mongo_connect = crawler.settings.get('MONGO_URL')
-        cls.mongo_database = crawler.settings.get('MONGO_DATABASES')
-        cls.mongo_collection = crawler.settings.get('MONGO_COLLECTION')
+        cls.post_url = crawler.settings.get('POST_URL')
+        cls.topic = crawler.settings.get('TOPIC')
+        cls.kafka_ins = KafkaTest()
         return cls()
 
     def unit_conversion(self, name):
@@ -69,8 +68,9 @@ class RulespiderPipeline:
         """
         数据库链接
         """
-        self.mongo_client = pymongo.MongoClient(self.mongo_connect)
-        self.mongo_db = self.mongo_client[self.mongo_database]
+        pass
+        # self.mongo_client = pymongo.MongoClient(self.mongo_connect)
+        # self.mongo_db = self.mongo_client[self.mongo_database]
 
     def get_id(self, item, names):
         _id = hashlib.md5(to_bytes(item['version']))
@@ -86,14 +86,16 @@ class RulespiderPipeline:
         item['introduce'] = self.fit_date(item['introduce'])
         item['apksize'] = self.unit_conversion(item['apksize'])
         names = ['apksize', 'developer', 'downloadUrl']
-        if spider.name == 'jinli':
+        configs = ['jinli', 'jinli_test']
+        if spider.name in configs :
             names = ['apksize', 'developer']
+        # 发送kafka
+        self.kafka_ins.async_produce_message(dict(item), self.topic)
+        # 传输到武汉
         _id = self.get_id(item, names)
-        self.mongo_db[self.mongo_collection].update_one(
-                                {'_id': _id},
-                                {'$set': dict(item)},
-                                True
-                                )
+        item['_id'] = _id
+        # 校验是否请求成功
+        result = requests.post(self.post_url, json=dict(item)).json()
 
         return item
 

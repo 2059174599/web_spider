@@ -10,7 +10,7 @@ from itemloaders.processors import TakeFirst, Identity, Compose
 
 class RulespiderItem(scrapy.Item):
     # define the fields for your item here like:
-    # name = scrapy.Field()
+    _id = Field()
     name = Field()
     apksize = Field()
     downloadUrl = Field()

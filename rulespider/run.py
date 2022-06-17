@@ -22,5 +22,5 @@ def run():
     process.crawl(spider, **{'name': name})
     process.start()
 
-if __name__ == '__name__':
-    run()
+# if __name__ == '__name__':
+run()

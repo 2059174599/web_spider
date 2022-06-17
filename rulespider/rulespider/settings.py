@@ -106,3 +106,9 @@ REDIS_URL = 'redis://:eversec123098@127.0.0.1:6379'
 MONGO_URL = 'mongodb://root:eversec123098@127.0.0.1:27001'
 MONGO_DATABASES = 'test'
 MONGO_COLLECTION = 'app_info_wuhan'
+POST_URL = 'http://127.0.0.1:5000/db/testMongoWrite'
+
+KAFKA = {'product': ['10.0.4.33:9092'],
+         'consumer': ['10.0.4.33:2181'],
+          }
+TOPIC = 'web_crawler_app_info_topic1'

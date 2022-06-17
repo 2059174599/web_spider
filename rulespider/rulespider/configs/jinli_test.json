@@ -11,11 +11,6 @@
 		},
 		"follow": false,
 		"callback": "parse_item"
-	},
-		{
-		"link_extractor": {
-			"restrict_xpaths": "//div[@class=\"bd\"]/div"
-		}
 	}],
 	"item": {
 		"class": "RulespiderItem",
