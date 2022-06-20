@@ -24,3 +24,15 @@ class BaseDb(object):
                                 {'$set': item},
                                 True
                                 )
+    def get_setdiff(self, keys1,keys2):
+        sets = self.redis_clent.sdiff(keys1, keys2)
+        return sets
+
+    def get_mongo_data(self, _id):
+        return [self.mongo_db[MONGO_COLLECTION].find({"_id": _id})]
+
+    def get_mongo_datas(self, ids):
+        data = []
+        for _id in ids:
+            data.append(self.mongo_db[MONGO_COLLECTION].find({"_id": _id}))
+        return data
