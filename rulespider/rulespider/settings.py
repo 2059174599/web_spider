@@ -101,8 +101,9 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 # 128MB 1亿数量级
 # BLOOMFILTER_BIT = 30
 SCHEDULER_PERSIST = False
-
-REDIS_URL = 'redis://:eversec123098@127.0.0.1:6379'
+FIT_NAMES = ['apksize', 'developer', 'downloadUrl']
+REDIS_URL = 'redis://:eversec123098@10.0.4.38:6379'
+REDIS_KEY = 'app_info'
 MONGO_URL = 'mongodb://root:eversec123098@127.0.0.1:27001'
 MONGO_DATABASES = 'test'
 MONGO_COLLECTION = 'app_info_wuhan'
