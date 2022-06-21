@@ -4,8 +4,8 @@ import re
 import time
 import logging
 import redis
-from ..settings import REDIS_URL, POST_URL
-from lxml import etree
+# from ..settings import REDIS_URL, POST_URL, REDIS_KEY
+from scrapy.utils.project import get_project_settings
 import requests
 import random
 
@@ -23,6 +23,7 @@ class HuaWeiSpider(scrapy.Spider):
     }
 
     def __init__(self):
+        settings = get_project_settings()
         # 游戏 应用
         self.start_url = 'https://web-drcn.hispace.dbankcloud.cn/uowap/index?method=internal.getTabDetail&serviceType=20&reqPageNum=1&uri={}'
         self.page_urls = 'https://appgallery.huawei.com/app/{}'
@@ -30,15 +31,14 @@ class HuaWeiSpider(scrapy.Spider):
         self.down_url = 'https://appgallery.cloud.huawei.com/appdl/{}'
         self.html_url = 'https://web-drcn.hispace.dbankcloud.cn/uowap/index?method=internal.getTabDetail&serviceType=20&reqPageNum={}&uri={}&maxResults=25&zone=&locale=zh'
         self.page_url = 'https://web-drcn.hispace.dbankcloud.cn/uowap/index?method=internal.getTabDetail&serviceType=20&reqPageNum=1&maxResults=25&uri=app%7C{}&shareTo=&currentUrl=https%253A%252F%252Fappgallery.huawei.com%252Fapp%252F{}&accessId=&appid={}&zone=&locale=zh'
-        self.redcline = redis.from_url(REDIS_URL)
+        self.redis_clent = redis.from_url(settings['REDIS_URL'])
         self.page = 1
-        self.md5Name = 'apkmd5'
+        self.md5Name = settings['REDIS_KEY']
         self.id = 'huawei_id'
-        self.post_url = POST_URL
+        self.post_url = settings['POST_URL']
 
     def start_requests(self):
-        for tabId in list(self.redcline.smembers(self.id))[:1]:
-            tabId = '1a4acc3b50c142e5aab54629d98c90ca'
+        for tabId in list(self.redis_clent.smembers(self.id))[:1]:
             url = self.html_url.format(self.page, tabId)
             logger.info('start url:{}'.format(url))
             yield scrapy.Request(url=url, callback=self.parse, meta={'tabId':tabId})
@@ -47,12 +47,9 @@ class HuaWeiSpider(scrapy.Spider):
         r = requests.get(url, headers=self.headers).json()
         return r['layoutData']
 
-    def isExise(self, name, md5):
-        res = self.redcline.sismember(name, md5)
-        if res == 1:
-            return True
-        else:
-            return False
+    def appinfo_seen(self, name, values):
+        added = self.redis_clent.sadd(name, values)
+        return added == 1
 
     def parse(self, response):
         """
@@ -62,31 +59,8 @@ class HuaWeiSpider(scrapy.Spider):
         tabId = response.meta['tabId']
         while data:
             for line in data[0]['dataList']:
-                if not self.isExise(self.md5Name, line['md5']):
-                    item = dict()
-                    url = self.page_url.format(line['appid'], line['appid'], line['appid'])
-                    page_data = self.shop_html(url)
-                    item['name'] = line['name']
-                    item['apksize'] = line['fullSize']
-                    item['downloadUrl'] = self.down_url.format(line['appid'])
-                    item['version'] = line['appVersionName']
-                    item['introduce'] = page_data[0]
-                    item['developer'] = page_data[1]
-                    item['category'] = line['kindName']
-                    item['updatetime'] = page_data[2]
-                    item['icon_url'] = line['icon']
-                    item['sceenshot_url'] = page_data[3]
-                    item['shop'] = '华为应用市场'
-                    item['system'] = 'android'
-                    dlamount = line['downCountDesc'].strip('<').strip('次安装')
-                    item['dlamount'] = self.unit_conversion(dlamount)
-                    item['url'] = self.page_urls.format(line['appid'])
-                    item['jsonObject'] = {'time': time.strftime("%Y-%m-%d", time.localtime()), 'md5': line['md5']}
-                    # md5 添加布隆过滤
-                    self.redcline.sadd(self.md5Name, line['md5'])
-                    item['_id'] = line['md5']
-                    # 持久化
-                    result = requests.post(self.post_url, json=item).json()
+                item = self.handle_result(line)
+                self.request_wuhan(item)
             logger.info('第:{}页'.format(self.page))
             self.page += 1
             url = self.html_url.format(self.page, tabId)
@@ -144,3 +118,38 @@ class HuaWeiSpider(scrapy.Spider):
             if data['layoutName'] == 'detailscreencard':
                 sceenshot_url = data['dataList'][0]['images']
         return [introduce, developer, updatetime, sceenshot_url]
+
+    def handle_result(self, line):
+        if self.appinfo_seen(self.md5Name, line['md5']):
+            item = dict()
+            url = self.page_url.format(line['appid'], line['appid'], line['appid'])
+            page_data = self.shop_html(url)
+            item['name'] = line['name']
+            item['apksize'] = line['fullSize']
+            item['downloadUrl'] = self.down_url.format(line['appid'])
+            item['version'] = line['appVersionName']
+            item['introduce'] = page_data[0]
+            item['developer'] = page_data[1]
+            item['category'] = line['kindName']
+            item['updatetime'] = page_data[2]
+            item['icon_url'] = line['icon']
+            item['sceenshot_url'] = page_data[3]
+            item['shop'] = '华为应用市场'
+            item['system'] = 'android'
+            dlamount = line['downCountDesc'].strip('<').strip('次安装')
+            item['dlamount'] = self.unit_conversion(dlamount)
+            item['url'] = self.page_urls.format(line['appid'])
+            item['jsonObject'] = {'time': time.strftime("%Y-%m-%d", time.localtime()), 'md5': line['md5']}
+            item['_id'] = line['md5']
+            return item
+
+
+    def request_wuhan(self, item):
+        """
+        发送武汉
+        """
+        result = requests.post(self.post_url, json=item).json()
+        if result['code'] == 200:
+            logger.info('武汉请求成功')
+        else:
+            logger.error('武汉请求异常：{},data:{}'.format(self.post_url, item))
