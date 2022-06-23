@@ -13,13 +13,19 @@ def push_app():
     try:
         data = request.get_json()
         _id = data.pop('_id')
-        seen = db.appinfo_seen(_id)
-        if seen:
+        keys = data['source']
+        seen_fenqu = db.appinfo_seen(keys, _id)
+        seen_total = db.appinfo_seen(REDIS_KEY, _id)
+        if seen_total:
             db.insert_mongo(data, _id)
             current_app.logger.info('入库数据id:{}'.format(_id))
+            return {
+                'code': 200,
+                'msg': '成功'
+            }
         return {
             'code': 200,
-            'msg': '成功'
+            'msg': '已存在'
         }
     except Exception as e:
         return {
@@ -32,8 +38,10 @@ def push_app():
 def pop_app():
     try:
         name = request.args.get('name')
+        number = request.args.get('number')
+        number = number if number else 5
         sets = db.get_setdiff(name, REDIS_KEY)
-        data = db.get_mongo_datas(sets)
+        data = db.get_mongo_datas(sets, number)
         return {
             'code': 200,
             'msg': '成功',
@@ -51,5 +59,4 @@ def test():
 	测试redis
 	"""
     current_app.logger.info('wIUGEHF')
-    # logger.info('AERGTEW')
     return "ok"
