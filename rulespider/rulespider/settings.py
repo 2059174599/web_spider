@@ -25,7 +25,7 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-# DOWNLOAD_DELAY = 1
+DOWNLOAD_DELAY = 1
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
@@ -103,12 +103,13 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 SCHEDULER_PERSIST = False
 FIT_NAMES = ['apksize', 'developer', 'downloadUrl']
 REDIS_URL = 'redis://:eversec123098@10.0.4.38:6379'
-REDIS_KEY = 'app_info'
+# 分区名称
+REDIS_KEY = 'wuhan'
 MONGO_URL = 'mongodb://root:eversec123098@127.0.0.1:27001'
 MONGO_DATABASES = 'test'
-MONGO_COLLECTION = 'app_info_wuhan'
-POST_URL = 'http://127.0.0.1:5000/db/testMongoWrite'
-
+MONGO_COLLECTION = 'app_info'
+POST_URL = 'http://10.0.4.38:8090/db/pushAppData'
+PROXY_API = 'http://13810804359.user.xiecaiyun.com/api/proxies?action=getText&key=NPEB017FC8&count=1&word=&rand=false&norepeat=false&detail=false&ltime=0'
 KAFKA = {'product': ['10.0.4.33:9092'],
          'consumer': ['10.0.4.33:2181'],
           }

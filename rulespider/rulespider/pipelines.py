@@ -12,6 +12,8 @@ import re
 import hashlib
 from rulespider.toKafka import KafkaTest
 import redis
+import logging
+logger = logging.getLogger(__name__)
 
 class RulespiderPipeline:
 
@@ -87,6 +89,16 @@ class RulespiderPipeline:
         _id = _id.hexdigest()
         return _id
 
+    def request_wuhan(self, item):
+        """
+        发送武汉
+        """
+        result = requests.post(self.post_url, json=item).json()
+        if result['code'] == 200:
+            logger.info('武汉请求成功:{}'.format(result))
+        else:
+            logger.error('武汉请求异常：{}'.format(result))
+
     def process_item(self, item, spider):
         """
         数据处理
@@ -106,7 +118,8 @@ class RulespiderPipeline:
             # 传输到武汉
             item['_id'] = _id
             # 校验是否请求成功
-            result = requests.post(self.post_url, json=dict(item)).json()
+            # result = requests.post(self.post_url, json=dict(item)).json()
+            self.request_wuhan(dict(item))
 
             return item
 
