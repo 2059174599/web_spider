@@ -5,7 +5,7 @@ from ..items import RuleItem, RulespiderItem
 import time
 
 class HuyaSpider(CrawlSpider):
-    name = 'jinli1'
+    name = 'jinli_test'
     allowed_domains = ['game.gionee.com']
     start_urls = ['https://game.gionee.com/Front/Category/index/?action=visit&object=category']
 

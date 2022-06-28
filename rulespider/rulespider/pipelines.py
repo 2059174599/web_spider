@@ -53,11 +53,20 @@ class RulespiderPipeline:
             if '万' in name:
                 name = name.replace('万', '')
                 return int(float(name) * 10000)
+            return int(name)
         except:
             try:
                 return int(name)
             except:
                 return 0
+    def replace_data(self, name):
+        """
+        替换
+        """
+        lists = ['更新日期：', '大小：', '版本：']
+        for i in lists:
+            name = name.replace(i, '')
+        return name
 
     def fit_date(self, name):
         """
@@ -103,8 +112,16 @@ class RulespiderPipeline:
         """
         数据处理
         """
+        if spider.name == 'wuhan':
+            # 发送kafka
+            self.kafka_ins.async_produce_message(dict(item), self.topic)
+            return item
+        item['updatetime'] = self.replace_data(item['updatetime'])
+        item['apksize'] = self.replace_data(item['apksize'])
+        item['version'] = self.replace_data(item['version'])
         item['introduce'] = self.fit_date(item['introduce'])
         item['apksize'] = self.unit_conversion(item['apksize'])
+        item['source'] = self.redis_key
         configs = ['jinli', 'jinli_test']
         if spider.name in configs:
             self.fit_names = ['apksize', 'developer']
@@ -117,8 +134,6 @@ class RulespiderPipeline:
             self.kafka_ins.async_produce_message(dict(item), self.topic)
             # 传输到武汉
             item['_id'] = _id
-            # 校验是否请求成功
-            # result = requests.post(self.post_url, json=dict(item)).json()
             self.request_wuhan(dict(item))
 
             return item
@@ -127,4 +142,5 @@ class RulespiderPipeline:
         """
         数据库关闭
         """
-        self.mongo_client.close()
+        # self.mongo_client.close()
+        pass

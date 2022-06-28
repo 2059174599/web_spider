@@ -72,8 +72,11 @@ class HuaWeiSpider(scrapy.Spider):
         while data:
             for line in data[0]['dataList']:
                 item = self.handle_result(line)
-                logger.info('item:{}'.format(item))
-                self.request_wuhan(item)
+                if item:
+                    logger.info('item:{}'.format(item))
+                    self.request_wuhan(item)
+                else:
+                    continue
             logger.info('第:{}页'.format(self.page))
             self.page += 1
             url = self.html_url.format(self.page, tabId)
@@ -157,6 +160,8 @@ class HuaWeiSpider(scrapy.Spider):
             self.kafka_ins.async_produce_message(item, self.topic)
             item['_id'] = line['md5']
             return item
+        else:
+            logger.info('item已采集过:{}'.format(line['md5']))
 
 
     def request_wuhan(self, item):

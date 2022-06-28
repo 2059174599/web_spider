@@ -91,7 +91,7 @@ ITEM_PIPELINES = {
 
 import datetime
 Today = datetime.datetime.now() #取得现在的时间
-# LOG_FILE = '../log/scrapy_{}_{}_{}.log'.format(Today.year, Today.month, Today.day)
+LOG_FILE = '../log/scrapy_{}_{}_{}.log'.format(Today.year, Today.month, Today.day)
 
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
@@ -109,6 +109,7 @@ MONGO_URL = 'mongodb://root:eversec123098@127.0.0.1:27001'
 MONGO_DATABASES = 'test'
 MONGO_COLLECTION = 'app_info'
 POST_URL = 'http://10.0.4.38:8090/db/pushAppData'
+POP_URL = 'http://58.49.62.62:58090/db/popAppData?name={}'.format(REDIS_KEY)
 PROXY_API = 'http://13810804359.user.xiecaiyun.com/api/proxies?action=getText&key=NPEB017FC8&count=1&word=&rand=false&norepeat=false&detail=false&ltime=0'
 KAFKA = {'product': ['10.0.4.33:9092'],
          'consumer': ['10.0.4.33:2181'],
