@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 class XiaoMiGameSpider(scrapy.Spider):
     """
     默认新数据在前页
+    cid 4 游戏
+    cid 3 软件
     """
 
     name = '360_game'
@@ -20,12 +22,11 @@ class XiaoMiGameSpider(scrapy.Spider):
     }
 
     def __init__(self):
-        self.name = '360'
-        self.start_urls = ['http://m.app.so.com/category/request?page=1&requestType=ajax&cid=4']
-        self.class_urls = 'http://m.app.so.com/category/cat_request?page=1&requestType=ajax&cid=4&csid={}&order=newest+'
+        self.start_urls = ['http://m.app.so.com/category/request?page=1&requestType=ajax&cid=4', 'http://m.app.so.com/category/request?page=1&requestType=ajax&cid=3']
+        self.class_urls = 'http://m.app.so.com/category/cat_request?page=1&requestType=ajax&cid={}&csid={}&order=newest+'
         self.start_page_url = 1
-        self.page_urls = 'http://m.app.so.com/category/cat_request?page={}&requestType=ajax&cid=4&csid={}&order=newest+'
-        self.page = 21
+        self.page_urls = 'http://m.app.so.com/category/cat_request?page={}&requestType=ajax&cid={}&csid={}&order=newest+'
+        self.page = None
         self.html_url = 'http://m.app.so.com/detail/index?pname=com.sincetimes.dragonfarmii.qihoo&id={}'
 
     def start_requests(self):
@@ -38,8 +39,8 @@ class XiaoMiGameSpider(scrapy.Spider):
         """
         html = response.text
         for i in json.loads(html)[1:]:
-            # print(i['total'])
-            url = self.class_urls.format(i['category_id'])
+            cid = re.search('cid=(\d)', response.url).group(1)
+            url = self.class_urls.format(cid, i['category_id'])
             yield scrapy.Request(url=url, callback=self.page_url, meta=i)
 
     def page_url(self, response):
@@ -50,8 +51,9 @@ class XiaoMiGameSpider(scrapy.Spider):
         page = math.ceil(int(meta['total'])/20)
         page = self.page if self.page else page
         logger.info('page:{}'.format(page))
+        cid = re.search('cid=(\d)', response.url).group(1)
         for i in range(1, page+1):
-            url = self.page_urls.format(i, meta['category_id'])
+            url = self.page_urls.format(i, cid, meta['category_id'])
             logger.info('列表页url：{}'.format(url))
             yield scrapy.Request(url=url, callback=self.list_url)
 
@@ -84,7 +86,7 @@ class XiaoMiGameSpider(scrapy.Spider):
         item['version'] = date['version_name']
         item['introduce'] = response.xpath('//*[@id="fullDesc"]').get()
         item['developer'] = self.getRe(r'开发者：(.*?)</div>', response.text)
-        item['category'] = '游戏'
+        item['category'] = date['category_name']
         item['updatetime'] = self.getRe(r'更新时间：(.*?)</p>', response.text).split(' ')[0]
         item['icon_url'] = date['logo_url']
         # item['sceenshot_url'] = response.xpath('//div[@class="tempWrap"]/ul/li/img/@src').getall()
