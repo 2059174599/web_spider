@@ -1,11 +1,13 @@
 from app.database import BaseDb
 from flask import Blueprint, request
 from flask import current_app
-from settings import REDIS_KEY
-# import logging
-# logger = logging.getLogger(__name__)
 bp = Blueprint('db', __name__, url_prefix="/db")
 db = BaseDb()
+from app.database import global_config
+import logging
+logger = logging.getLogger(__name__)
+REDIS_KEY = global_config.get('redis', 'REDIS_KEY')
+
 
 @bp.route('/pushAppData', methods=['post'])
 # 分区写入数据
@@ -25,9 +27,10 @@ def push_app():
             }
         return {
             'code': 200,
-            'msg': '已存在'
+            'msg': '数据已存在'
         }
     except Exception as e:
+        current_app.logger.error(e)
         return {
             'code': 400,
             'msg': '{}'.format(e)
@@ -39,15 +42,20 @@ def pop_app():
     try:
         name = request.args.get('name')
         number = request.args.get('number')
-        number = number if number else 1
-        sets = db.get_setdiff(name, REDIS_KEY)
-        data = db.get_mongo_datas(sets, number, name)
+        area = request.args.get('area')
+        city = request.args.get('city')
+        province = request.args.get('province')
+        current_app.logger.info('name:{}, number:{}, area:{}, city:{}, province:{}'.format(name, number, area, city, province))
+        logger.info('name:{}, number:{}, area:{}, city:{}, province:{}'.format(name, number, area, city, province))
+        sets = db.get_setdiff(name, number, area, city, province)
+        data = db.get_mongo_datas(sets,  name)
         return {
             'code': 200,
             'msg': '成功',
             'data': data
         }
     except Exception as e:
+        current_app.logger.error(e)
         return {
             'code': 400,
             'msg': '{}'.format(e)
@@ -59,12 +67,14 @@ def monitor_app():
     try:
         data = request.get_json()
         data = db.insert_mongos(data, data["_id"])
+        current_app.logger.info('{}'.format(data))
         return {
             'code': 200,
             'msg': '成功',
             'data': data
         }
     except Exception as e:
+        current_app.logger.error(e)
         return {
             'code': 400,
             'msg': '{}'.format(e)
@@ -73,7 +83,6 @@ def monitor_app():
 @bp.route('/test', methods=['get'])
 def test():
     """
-	测试redis
+	测试
 	"""
-    current_app.logger.info('wIUGEHF')
     return "ok"
